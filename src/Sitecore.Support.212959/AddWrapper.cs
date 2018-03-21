@@ -1,49 +1,24 @@
-﻿// <copyright file="$FileName$" company="Sitecore">Copyright (c) Sitecore. All rights reserved.</copyright>
+﻿using Sitecore.Data;
+using Sitecore.Diagnostics;
+using Sitecore.Mvc.ExperienceEditor.Presentation;
+using Sitecore.Mvc.Pipelines.Response.RenderRendering;
+using Sitecore.Sites;
 
-namespace Sitecore.Mvc.ExperienceEditor.Pipelines.Response.RenderRendering
+namespace Sitecore.Support.Mvc.ExperienceEditor.Pipelines.Response.RenderRendering
 {
-  using Microsoft.Extensions.DependencyInjection;
-  using Sitecore.Data;
-  using Sitecore.DependencyInjection;
-  using Sitecore.Diagnostics;
-  using Sitecore.Mvc.ExperienceEditor.DatasourceValidator;
-  using Sitecore.Mvc.ExperienceEditor.Extensions;
-  using Sitecore.Mvc.ExperienceEditor.Presentation;
-  using Sitecore.Mvc.Pipelines.Response.RenderRendering;
-  using Sitecore.Mvc.Presentation;
-  using Sitecore.Sites;
-
-  /// <summary>
-  /// The add wrapper.
-  /// </summary>
-  public class AddWrapper : RenderRenderingProcessor
+  public class AddWrapper : Sitecore.Mvc.ExperienceEditor.Pipelines.Response.RenderRendering.AddWrapper
   {
-    protected readonly IDatasourceValidator datasourceValidator;
-
-    public AddWrapper(IDatasourceValidator datasourceValidator)
-    {
-      this.datasourceValidator = datasourceValidator;
-    }
-
-    public AddWrapper() : this(ServiceLocator.ServiceProvider.GetService<IDatasourceValidator>())
-    {
-    }
-
-    /// <summary>
-    /// The process.
-    /// </summary>
-    /// <param name="args">
-    /// The args.
-    /// </param>
     public override void Process([NotNull] RenderRenderingArgs args)
     {
       Assert.ArgumentNotNull(args, nameof(args));
-      if (!IsDataSourceValid(args))
+
+      if (args.Rendered)
       {
         return;
       }
 
-      if (args.Rendered)
+
+      if (!Context.PageMode.IsExperienceEditorEditing)
       {
         return;
       }
@@ -54,7 +29,7 @@ namespace Sitecore.Mvc.ExperienceEditor.Pipelines.Response.RenderRendering
         return;
       }
 
-      if (!Context.PageMode.IsExperienceEditorEditing)
+      if (!IsDataSourceValid(args))
       {
         return;
       }
@@ -94,34 +69,6 @@ namespace Sitecore.Mvc.ExperienceEditor.Pipelines.Response.RenderRendering
     {
       // if this is core DB - it may contain speak renderings, that user does not have permissions to access - we should render them
       return database != null && !string.IsNullOrEmpty(dataSource) && database.Name != Constants.CoreDatabaseName;
-    }
-
-    /// <summary>
-    /// The get marker.
-    /// </summary>
-    /// <returns>
-    /// </returns>
-    [CanBeNull]
-    protected virtual IMarker GetMarker()
-    {
-      RenderingContext context = RenderingContext.CurrentOrNull;
-      if (context?.Rendering == null)
-      {
-        return null;
-      }
-
-      if (!context.Rendering.IsXmlBasedRendering())
-      {
-        return null;
-      }
-
-      PlaceholderContext placeholderContext = PlaceholderContext.CurrentOrNull;
-      if (placeholderContext == null)
-      {
-        return null;
-      }
-
-      return new RenderingMarker(context, placeholderContext);
     }
   }
 }

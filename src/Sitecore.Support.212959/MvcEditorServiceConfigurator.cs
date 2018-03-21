@@ -1,15 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Sitecore.DependencyInjection;
-using Sitecore.Mvc.ExperienceEditor.DatasourceValidator;
-using System;
 
-namespace Sitecore.Mvc.ExperienceEditor.DependencyInjection
+namespace Sitecore.Support.Mvc.ExperienceEditor.DependencyInjection
 {
   public class MvcEditorServiceConfigurator : IServicesConfigurator
   {
     public void Configure(IServiceCollection serviceCollection)
     {
-      serviceCollection.AddTransient<IDatasourceValidator, DatasourceValidator>();
+      serviceCollection.AddTransient<Sitecore.Mvc.ExperienceEditor.DatasourceValidator.IDatasourceValidator, Sitecore.Support.Mvc.ExperienceEditor.DatasourceValidator.DatasourceValidator>();
     }
   }
 }
